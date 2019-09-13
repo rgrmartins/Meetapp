@@ -60,7 +60,16 @@ class SubscriptionController {
         .json({ error: "Can't subscribe to two meetups at the same time" });
     }
 
-    return res.json(meetup);
+    const subscription = await Subscription.create({
+      user_id: user.id,
+      meetup_id: meetup.id,
+    });
+
+    return res.json(subscription);
+  }
+
+  async delete(req, res) {
+    return res.json({ ok: true });
   }
 }
 

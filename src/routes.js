@@ -35,6 +35,8 @@ routes.put('/meetups/:id', MeetupController.update);
 routes.get('/user_meetups', UserMeetupController.index);
 // Rota para fazer inscrição em um Meetup
 routes.post('/subscription/:id_meetup', SubscriptionController.store);
+// Rota para Cancelar inscrição em um Meetup
+routes.delete('/subscription/:id_meetup', SubscriptionController.delete);
 
 // Rota de Upload de arquivos
 routes.post('/files', upload.single('file'), FileController.store);
