@@ -3,6 +3,9 @@ import Meetup from '../models/Meetup';
 import User from '../models/User';
 import Subscription from '../models/Subscription';
 
+import SubscriptionMail from '../jobs/SubscriptionMail';
+import Queue from '../../lib/Queue';
+
 class SubscriptionController {
   async store(req, res) {
     const { id_meetup } = req.params;
@@ -65,11 +68,45 @@ class SubscriptionController {
       meetup_id: meetup.id,
     });
 
+    await Queue.add(SubscriptionMail.key, {
+      user,
+      meetup,
+    });
+
     return res.json(subscription);
   }
 
   async delete(req, res) {
-    return res.json({ ok: true });
+    // Buscando o Meetup
+    const meetup = await Meetup.findByPk(req.params.id_meetup, {
+      include: [
+        {
+          model: User,
+          attributes: ['name', 'email'],
+        },
+      ],
+    });
+
+    // Verificando se o usuário que está cancelando tem inscrição nesse meetup
+    const subscription = await Subscription.findOne({
+      where: {
+        user_id: req.userID,
+        meetup_id: meetup.id,
+        canceled_at: null,
+      },
+    });
+
+    if (!subscription) {
+      return res
+        .status(400)
+        .json({ error: 'You are not written in this meetup.' });
+    }
+
+    subscription.canceled_at = new Date();
+
+    await subscription.save();
+
+    return res.json(subscription);
   }
 }
 
