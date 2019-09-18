@@ -1,5 +1,12 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore } from 'date-fns';
+import { Op } from 'sequelize';
+import {
+  startOfHour,
+  parseISO,
+  isBefore,
+  startOfDay,
+  endOfDay,
+} from 'date-fns';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
 
@@ -164,6 +171,35 @@ class MeetupController {
     meetup.update(req.body);
 
     return res.json(meetup);
+  }
+
+  async index(req, res) {
+    const { page = 1, date } = req.query;
+    const parseDate = parseISO(date);
+
+    if (!date) {
+      return res.status(400).json({ error: 'A valid date is required.' });
+    }
+
+    const meetups = await Meetup.findAll({
+      where: {
+        canceled_at: null,
+        date: {
+          [Op.between]: [startOfDay(parseDate), endOfDay(parseDate)],
+        },
+      },
+      order: [['date', 'ASC']],
+      limit: 20,
+      offset: (page - 1) * 20,
+      include: [
+        {
+          model: User,
+          attributes: ['name', 'email'],
+        },
+      ],
+      attributes: ['title', 'description', 'location', 'date'],
+    });
+    return res.json(meetups);
   }
 }
 

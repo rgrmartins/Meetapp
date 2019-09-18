@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { isBefore } from 'date-fns';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
@@ -107,6 +108,35 @@ class SubscriptionController {
     await subscription.save();
 
     return res.json(subscription);
+  }
+
+  async index(req, res) {
+    const subscriptions = await Subscription.findAll({
+      where: {
+        user_id: req.userID,
+        canceled_at: null,
+      },
+      include: [
+        {
+          model: Meetup,
+          attributes: ['title', 'location', 'date'],
+          where: {
+            date: {
+              [Op.gt]: new Date(),
+            },
+          },
+          required: true,
+        },
+        {
+          model: User,
+          attributes: ['name', 'email'],
+        },
+      ],
+      oder: [[Meetup, 'date']],
+      attributes: ['canceled_at'],
+    });
+
+    return res.json(subscriptions);
   }
 }
 

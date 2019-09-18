@@ -27,6 +27,8 @@ routes.put('/users', UserController.update);
 
 // Rota para criar Meetups
 routes.post('/meetups', MeetupController.store);
+// Rota para Listar Meetups
+routes.get('/meetups', MeetupController.index);
 // Rota para deletar (Cancelar) um Meetup
 routes.delete('/meetups/:id', MeetupController.delete);
 // Rota para editar um Meetup
@@ -37,7 +39,10 @@ routes.get('/user_meetups', UserMeetupController.index);
 routes.post('/subscription/:id_meetup', SubscriptionController.store);
 // Rota para Cancelar inscrição em um Meetup
 routes.delete('/subscription/:id_meetup', SubscriptionController.delete);
+// Rota para listar Incrições realizadas pelo Usuário Logado
+routes.get('/subscription', SubscriptionController.index);
 
 // Rota de Upload de arquivos
 routes.post('/files', upload.single('file'), FileController.store);
+
 export default routes;

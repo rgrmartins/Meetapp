@@ -3,7 +3,7 @@ import Meetup from '../models/Meetup';
 class UserMeetupController {
   async index(req, res) {
     /**
-     * Procurando Meetups organizados pelo usuário logado
+     * Procurando Meetups ORGANIZADOS pelo usuário logado
      * Está listando todos, inclusives os passados
      */
     const meetups = await Meetup.findAll({
